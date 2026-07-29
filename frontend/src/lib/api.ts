@@ -2,8 +2,11 @@ import axios from 'axios';
 import { getStoredSession } from './auth-storage';
 import { notifySessionExpired } from './auth-events';
 
+const configuredApiUrl = import.meta.env.VITE_API_URL?.trim();
+const fallbackApiUrl = import.meta.env.PROD ? '/api' : 'http://localhost:3333/api';
+
 export const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL ?? 'http://localhost:3333/api'
+  baseURL: configuredApiUrl || fallbackApiUrl
 });
 
 api.interceptors.request.use((config) => {
