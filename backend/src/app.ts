@@ -1,5 +1,6 @@
 import fs from 'node:fs';
 import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import cors from 'cors';
 import express, { type NextFunction, type Request, type Response } from 'express';
 import helmet from 'helmet';
@@ -16,6 +17,8 @@ import { settingsRouter } from './routes/settings.routes.js';
 import { usersRouter } from './routes/users.routes.js';
 
 export const app = express();
+
+const currentDir = path.dirname(fileURLToPath(import.meta.url));
 
 app.use(helmet());
 app.use(
@@ -39,18 +42,17 @@ if (env.NODE_ENV === 'test') {
   app.use('/api/test', protectedTestRouter);
 }
 
-if (env.NODE_ENV === 'production') {
-  const frontendDist = [
-    path.resolve(process.cwd(), 'frontend', 'dist'),
-    path.resolve(process.cwd(), '..', 'frontend', 'dist')
-  ].find((candidate) => fs.existsSync(candidate));
+const frontendDist = [
+  path.resolve(process.cwd(), 'frontend', 'dist'),
+  path.resolve(process.cwd(), '..', 'frontend', 'dist'),
+  path.resolve(currentDir, '..', '..', 'frontend', 'dist')
+].find((candidate) => fs.existsSync(path.join(candidate, 'index.html')));
 
-  if (frontendDist) {
-    app.use(express.static(frontendDist));
-    app.get('*', (_request, response) => {
-      response.sendFile(path.join(frontendDist, 'index.html'));
-    });
-  }
+if (frontendDist && env.NODE_ENV !== 'test') {
+  app.use(express.static(frontendDist));
+  app.get('*', (_request, response) => {
+    response.sendFile(path.join(frontendDist, 'index.html'));
+  });
 }
 
 app.use((_request: Request, response: Response) => {
