@@ -1,0 +1,16 @@
+{
+  "name": "delta-help-desk",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "railway:build": "npm --prefix backend ci && npm --prefix frontend ci && npm --prefix backend run prisma:generate && npm --prefix frontend run build && npm --prefix backend run build",
+    "start": "npm --prefix backend run db:push && npm --prefix backend run db:seed && node backend/dist/server.js",
+    "lint": "npm --prefix backend run lint && npm --prefix frontend run lint",
+    "test": "npm --prefix backend run test",
+    "build": "npm run railway:build"
+  },
+  "engines": {
+    "node": "22.x"
+  }
+}

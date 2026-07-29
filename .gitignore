@@ -1,0 +1,12 @@
+node_modules/
+dist/
+*.tsbuildinfo
+.env
+.env.local
+.env.*.local
+*.db
+*.db-journal
+backend/data/*
+!backend/data/.gitkeep
+backend/prisma/data/*
+!backend/prisma/data/.gitkeep

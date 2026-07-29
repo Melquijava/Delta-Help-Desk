@@ -1,0 +1,51 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --brand-primary: #0284c7;
+  --brand-primary-soft: #0284c71a;
+}
+
+body {
+  margin: 0;
+  font-family:
+    Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+.bg-brand-50 {
+  background-color: var(--brand-primary-soft);
+}
+
+.bg-brand-600,
+.hover\:bg-brand-700:hover {
+  background-color: var(--brand-primary);
+}
+
+.text-brand-700,
+.text-brand-800 {
+  color: var(--brand-primary);
+}
+
+.border-brand-500,
+.hover\:border-brand-300:hover,
+.hover\:border-brand-400:hover {
+  border-color: var(--brand-primary);
+}
+
+.focus\:border-brand-500:focus,
+.focus\:border-brand-600:focus {
+  border-color: var(--brand-primary);
+}
+
+::selection {
+  background: #d9efff;
+  color: #0f172a;
+}
+
+button,
+input,
+textarea,
+select {
+  font: inherit;
+}

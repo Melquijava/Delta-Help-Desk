@@ -1,0 +1,436 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id              String              @id @default(uuid())
+  name            String
+  email           String              @unique
+  phone           String?
+  registration    String?             @unique
+  passwordHash    String
+  status          String              @default("ACTIVE")
+  notes           String?
+  createdAt       DateTime            @default(now())
+  updatedAt       DateTime            @updatedAt
+  deletedAt       DateTime?
+  auditLogs       AuditLog[]          @relation("AuditActor")
+  copiedMessages  CopiedMessageLog[]
+  favoriteItems   FavoriteProcedure[]
+  feedbacks       ProcedureFeedback[]
+  authored        Procedure[]         @relation("ProcedureAuthor")
+  usages          ProcedureUsage[]
+  refreshTokens   RefreshToken[]
+  searchLogs      SearchLog[]
+  settingsUpdated SystemSetting[]     @relation("SystemSettingUpdater")
+  roles           UserRole[]
+
+  @@index([status])
+  @@index([registration])
+  @@index([deletedAt])
+  @@map("users")
+}
+
+model Role {
+  id          String           @id @default(uuid())
+  name        String
+  slug        String           @unique
+  description String?
+  status      String           @default("ACTIVE")
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+  deletedAt   DateTime?
+  permissions RolePermission[]
+  users       UserRole[]
+
+  @@index([status])
+  @@index([deletedAt])
+  @@map("roles")
+}
+
+model Permission {
+  id          String           @id @default(uuid())
+  key         String           @unique
+  module      String
+  action      String
+  description String?
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+  deletedAt   DateTime?
+  roles       RolePermission[]
+
+  @@index([module])
+  @@index([action])
+  @@index([deletedAt])
+  @@map("permissions")
+}
+
+model UserRole {
+  userId    String
+  roleId    String
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+  role      Role      @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([userId, roleId])
+  @@index([roleId])
+  @@index([deletedAt])
+  @@map("user_roles")
+}
+
+model RolePermission {
+  roleId       String
+  permissionId String
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+  deletedAt    DateTime?
+  permission   Permission @relation(fields: [permissionId], references: [id], onDelete: Cascade)
+  role         Role       @relation(fields: [roleId], references: [id], onDelete: Cascade)
+
+  @@id([roleId, permissionId])
+  @@index([permissionId])
+  @@index([deletedAt])
+  @@map("role_permissions")
+}
+
+model RefreshToken {
+  id        String    @id @default(uuid())
+  tokenHash String    @unique
+  userId    String
+  expiresAt DateTime
+  revokedAt DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([expiresAt])
+  @@index([revokedAt])
+  @@index([deletedAt])
+  @@map("refresh_tokens")
+}
+
+model Category {
+  id          String      @id @default(uuid())
+  name        String
+  slug        String      @unique
+  description String?
+  icon        String?
+  color       String?
+  order       Int         @default(0)
+  status      String      @default("ACTIVE")
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  deletedAt   DateTime?
+  procedures  Procedure[]
+
+  @@index([status])
+  @@index([order])
+  @@index([deletedAt])
+  @@map("categories")
+}
+
+model Procedure {
+  id               String              @id @default(uuid())
+  title            String
+  slug             String              @unique
+  summary          String
+  description      String?
+  categoryId       String
+  keywords         String              @default("[]")
+  symptoms         String              @default("[]")
+  difficulty       String              @default("EASY")
+  estimatedMinutes Int?
+  status           String              @default("DRAFT")
+  featured         Boolean             @default(false)
+  initialStepId    String?
+  authorId         String
+  publishedAt      DateTime?
+  archivedAt       DateTime?
+  createdAt        DateTime            @default(now())
+  updatedAt        DateTime            @updatedAt
+  deletedAt        DateTime?
+  auditLogs        AuditLog[]
+  author           User                @relation("ProcedureAuthor", fields: [authorId], references: [id])
+  category         Category            @relation(fields: [categoryId], references: [id])
+  copiedLogs       CopiedMessageLog[]
+  favoriteItems    FavoriteProcedure[]
+  feedbacks        ProcedureFeedback[]
+  messages         CopyableMessage[]
+  searchLogs       SearchLog[]
+  steps            ProcedureStep[]     @relation("ProcedureSteps")
+  usages           ProcedureUsage[]
+
+  @@index([categoryId])
+  @@index([authorId])
+  @@index([status])
+  @@index([difficulty])
+  @@index([featured])
+  @@index([initialStepId])
+  @@index([publishedAt])
+  @@index([deletedAt])
+  @@map("procedures")
+}
+
+model ProcedureStep {
+  id            String               @id @default(uuid())
+  procedureId   String
+  type          String
+  title         String
+  content       String?
+  explanation   String?
+  helperMessage String?
+  highlighted   Boolean              @default(false)
+  isFinal       Boolean              @default(false)
+  position      Int                  @default(0)
+  isRequired    Boolean              @default(true)
+  nextStepId    String?
+  createdAt     DateTime             @default(now())
+  updatedAt     DateTime             @updatedAt
+  deletedAt     DateTime?
+  copiedLogs    CopiedMessageLog[]
+  messages      CopyableMessage[]
+  nextStep      ProcedureStep?       @relation("StepNext", fields: [nextStepId], references: [id], onDelete: SetNull)
+  optionTargets StepOption[]         @relation("StepOptionNext")
+  previousSteps ProcedureStep[]      @relation("StepNext")
+  options       StepOption[]         @relation("StepOptions")
+  procedure     Procedure            @relation("ProcedureSteps", fields: [procedureId], references: [id], onDelete: Cascade)
+  currentUsages ProcedureUsage[]     @relation("UsageCurrentStep")
+  usageSteps    ProcedureUsageStep[]
+
+  @@index([procedureId])
+  @@index([type])
+  @@index([position])
+  @@index([nextStepId])
+  @@index([deletedAt])
+  @@map("procedure_steps")
+}
+
+model StepOption {
+  id             String               @id @default(uuid())
+  stepId         String
+  label          String
+  value          String
+  description    String?
+  order          Int                  @default(0)
+  nextStepId     String?
+  createdAt      DateTime             @default(now())
+  updatedAt      DateTime             @updatedAt
+  deletedAt      DateTime?
+  nextStep       ProcedureStep?       @relation("StepOptionNext", fields: [nextStepId], references: [id], onDelete: SetNull)
+  step           ProcedureStep        @relation("StepOptions", fields: [stepId], references: [id], onDelete: Cascade)
+  usageStepItems ProcedureUsageStep[]
+
+  @@unique([stepId, value])
+  @@index([stepId])
+  @@index([nextStepId])
+  @@index([order])
+  @@index([deletedAt])
+  @@map("step_options")
+}
+
+model CopyableMessage {
+  id          String             @id @default(uuid())
+  procedureId String
+  stepId      String
+  title       String
+  content     String
+  order       Int                @default(0)
+  status      String             @default("ACTIVE")
+  copyCount   Int                @default(0)
+  createdAt   DateTime           @default(now())
+  updatedAt   DateTime           @updatedAt
+  deletedAt   DateTime?
+  copiedLogs  CopiedMessageLog[]
+  procedure   Procedure          @relation(fields: [procedureId], references: [id], onDelete: Cascade)
+  step        ProcedureStep      @relation(fields: [stepId], references: [id], onDelete: Cascade)
+
+  @@index([procedureId])
+  @@index([stepId])
+  @@index([order])
+  @@index([status])
+  @@index([copyCount])
+  @@index([deletedAt])
+  @@map("copyable_messages")
+}
+
+model ProcedureUsage {
+  id             String               @id @default(uuid())
+  procedureId    String
+  attendantId    String
+  status         String               @default("IN_PROGRESS")
+  currentStepId  String?
+  startedAt      DateTime             @default(now())
+  completedAt    DateTime?
+  resolvedAt     DateTime?
+  resolutionNote String?
+  createdAt      DateTime             @default(now())
+  updatedAt      DateTime             @updatedAt
+  copiedLogs     CopiedMessageLog[]
+  attendant      User                 @relation(fields: [attendantId], references: [id])
+  currentStep    ProcedureStep?       @relation("UsageCurrentStep", fields: [currentStepId], references: [id], onDelete: SetNull)
+  feedback       ProcedureFeedback?
+  procedure      Procedure            @relation(fields: [procedureId], references: [id])
+  steps          ProcedureUsageStep[]
+
+  @@index([procedureId])
+  @@index([attendantId])
+  @@index([status])
+  @@index([currentStepId])
+  @@index([startedAt])
+  @@index([completedAt])
+  @@map("procedure_usages")
+}
+
+model ProcedureUsageStep {
+  id               String         @id @default(uuid())
+  usageId          String
+  stepId           String
+  selectedOptionId String?
+  order            Int
+  notes            String?
+  enteredAt        DateTime       @default(now())
+  leftAt           DateTime?
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
+  selectedOption   StepOption?    @relation(fields: [selectedOptionId], references: [id], onDelete: SetNull)
+  step             ProcedureStep  @relation(fields: [stepId], references: [id])
+  usage            ProcedureUsage @relation(fields: [usageId], references: [id], onDelete: Cascade)
+
+  @@unique([usageId, order])
+  @@index([usageId])
+  @@index([stepId])
+  @@index([selectedOptionId])
+  @@index([enteredAt])
+  @@map("procedure_usage_steps")
+}
+
+model CopiedMessageLog {
+  id          String          @id @default(uuid())
+  messageId   String
+  usageId     String?
+  userId      String
+  procedureId String
+  stepId      String
+  copiedAt    DateTime        @default(now())
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+  message     CopyableMessage @relation(fields: [messageId], references: [id])
+  procedure   Procedure       @relation(fields: [procedureId], references: [id])
+  step        ProcedureStep   @relation(fields: [stepId], references: [id])
+  usage       ProcedureUsage? @relation(fields: [usageId], references: [id], onDelete: SetNull)
+  user        User            @relation(fields: [userId], references: [id])
+
+  @@index([messageId])
+  @@index([usageId])
+  @@index([userId])
+  @@index([procedureId])
+  @@index([copiedAt])
+  @@map("copied_message_logs")
+}
+
+model ProcedureFeedback {
+  id          String         @id @default(uuid())
+  usageId     String         @unique
+  procedureId String
+  userId      String
+  wasResolved Boolean
+  rating      Int?
+  comment     String?
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+  procedure   Procedure      @relation(fields: [procedureId], references: [id])
+  usage       ProcedureUsage @relation(fields: [usageId], references: [id], onDelete: Cascade)
+  user        User           @relation(fields: [userId], references: [id])
+
+  @@index([procedureId])
+  @@index([userId])
+  @@index([wasResolved])
+  @@index([createdAt])
+  @@map("procedure_feedbacks")
+}
+
+model FavoriteProcedure {
+  id          String    @id @default(uuid())
+  userId      String
+  procedureId String
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  deletedAt   DateTime?
+  procedure   Procedure @relation(fields: [procedureId], references: [id], onDelete: Cascade)
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, procedureId])
+  @@index([procedureId])
+  @@index([deletedAt])
+  @@map("favorite_procedures")
+}
+
+model SearchLog {
+  id                  String     @id @default(uuid())
+  userId              String
+  query               String
+  normalizedQuery     String
+  resultsCount        Int        @default(0)
+  selectedProcedureId String?
+  createdAt           DateTime   @default(now())
+  updatedAt           DateTime   @updatedAt
+  selectedProcedure   Procedure? @relation(fields: [selectedProcedureId], references: [id], onDelete: SetNull)
+  user                User       @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+  @@index([normalizedQuery])
+  @@index([selectedProcedureId])
+  @@index([createdAt])
+  @@map("search_logs")
+}
+
+model AuditLog {
+  id          String     @id @default(uuid())
+  actorId     String?
+  action      String
+  entityType  String
+  entityId    String?
+  procedureId String?
+  metadata    String?
+  ipAddress   String?
+  userAgent   String?
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  actor       User?      @relation("AuditActor", fields: [actorId], references: [id], onDelete: SetNull)
+  procedure   Procedure? @relation(fields: [procedureId], references: [id], onDelete: SetNull)
+
+  @@index([actorId])
+  @@index([action])
+  @@index([entityType])
+  @@index([entityId])
+  @@index([procedureId])
+  @@index([createdAt])
+  @@map("audit_logs")
+}
+
+model SystemSetting {
+  id          String    @id @default(uuid())
+  key         String    @unique
+  value       String
+  description String?
+  isPublic    Boolean   @default(false)
+  updatedById String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  deletedAt   DateTime?
+  updatedBy   User?     @relation("SystemSettingUpdater", fields: [updatedById], references: [id], onDelete: SetNull)
+
+  @@index([isPublic])
+  @@index([updatedById])
+  @@index([deletedAt])
+  @@map("system_settings")
+}
