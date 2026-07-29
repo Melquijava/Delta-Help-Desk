@@ -61,7 +61,7 @@ O arquivo `railway.json` define:
 Build:
 
 ```bash
-npm run railway:build
+Dockerfile
 ```
 
 Start:
@@ -80,6 +80,12 @@ node backend/dist/server.js
 
 `db:push` cria/atualiza as tabelas no SQLite.  
 `db:seed` cria administrador, atendente, cargos, permissoes, categorias e configuracoes iniciais.
+
+## Segredos
+
+Nao coloque `JWT_SECRET`, `DATABASE_URL` ou tokens dentro do `Dockerfile`.
+
+Esses valores devem ficar somente nas variaveis do Railway. O `Dockerfile` do projeto nao declara esses segredos com `ARG` ou `ENV`; eles entram apenas em tempo de execucao pelo ambiente do Railway.
 
 ## Subir para GitHub
 
