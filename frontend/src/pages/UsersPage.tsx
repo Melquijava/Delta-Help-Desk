@@ -258,13 +258,12 @@ export function UsersPage() {
               header: 'Acoes',
               render: (user) => (
                 <div className="flex flex-wrap gap-2">
-                  <Button className="h-10 w-10 px-0" variant="secondary" title="Detalhes" icon={<Eye size={16} aria-hidden="true" />} onClick={() => setDetailsUser(user)} />
-                  <Button className="h-10 w-10 px-0" variant="secondary" title="Editar" icon={<Edit size={16} aria-hidden="true" />} onClick={() => openEdit(user)} />
+                  <Button variant="secondary" title="Ver detalhes" icon={<Eye size={20} aria-hidden="true" />} onClick={() => setDetailsUser(user)} />
+                  <Button variant="secondary" title="Editar" icon={<Edit size={20} aria-hidden="true" />} onClick={() => openEdit(user)} />
                   <Button
-                    className="h-10 w-10 px-0"
                     variant="secondary"
                     title={user.status === 'ACTIVE' ? 'Desativar' : 'Ativar'}
-                    icon={<Power size={16} aria-hidden="true" />}
+                    icon={<Power size={20} aria-hidden="true" />}
                     onClick={() =>
                       setConfirmAction({
                         title: user.status === 'ACTIVE' ? 'Desativar usuario' : 'Ativar usuario',
@@ -274,10 +273,9 @@ export function UsersPage() {
                     }
                   />
                   <Button
-                    className="h-10 w-10 px-0"
                     variant="danger"
                     title="Excluir"
-                    icon={<Trash2 size={16} aria-hidden="true" />}
+                    icon={<Trash2 size={20} aria-hidden="true" />}
                     onClick={() =>
                       setConfirmAction({
                         title: 'Excluir usuario',
@@ -492,3 +490,4 @@ function Detail({ label, value }: { label: string; value: string }) {
     </div>
   );
 }
+

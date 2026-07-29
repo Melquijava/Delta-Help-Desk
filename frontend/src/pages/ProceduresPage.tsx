@@ -300,19 +300,18 @@ export function ProceduresPage() {
               header: 'Acoes',
               render: (procedure) => (
                 <div className="flex flex-wrap gap-2">
-                  <Button className="h-10 w-10 px-0" variant="secondary" title="Preview" icon={<Eye size={16} aria-hidden="true" />} onClick={() => setPreviewProcedure(procedure)} />
+                  <Button variant="secondary" title="Visualizar procedimento" icon={<Eye size={20} aria-hidden="true" />} onClick={() => setPreviewProcedure(procedure)} />
                   {!procedure.deletedAt && (
-                    <Button className="h-10 w-10 px-0" variant="secondary" title="Editar etapas" icon={<GitBranch size={16} aria-hidden="true" />} onClick={() => navigate(`/procedures/${procedure.id}/steps`)} />
+                    <Button variant="secondary" title="Editar etapas" icon={<GitBranch size={20} aria-hidden="true" />} onClick={() => navigate(`/procedures/${procedure.id}/steps`)} />
                   )}
                   {!procedure.deletedAt && (
-                    <Button className="h-10 w-10 px-0" variant="secondary" title="Editar" icon={<Edit size={16} aria-hidden="true" />} onClick={() => openEdit(procedure)} />
+                    <Button variant="secondary" title="Editar" icon={<Edit size={20} aria-hidden="true" />} onClick={() => openEdit(procedure)} />
                   )}
                   {!procedure.deletedAt && (
                     <Button
-                      className="h-10 w-10 px-0"
                       variant="secondary"
                       title="Duplicar"
-                      icon={<Copy size={16} aria-hidden="true" />}
+                      icon={<Copy size={20} aria-hidden="true" />}
                       onClick={() =>
                         setConfirmAction({
                           title: 'Duplicar procedimento',
@@ -324,10 +323,9 @@ export function ProceduresPage() {
                   )}
                   {!procedure.deletedAt && procedure.status !== 'PUBLISHED' && (
                     <Button
-                      className="h-10 w-10 px-0"
                       variant="secondary"
                       title="Publicar"
-                      icon={<Upload size={16} aria-hidden="true" />}
+                      icon={<Upload size={20} aria-hidden="true" />}
                       onClick={() =>
                         setConfirmAction({
                           title: 'Publicar procedimento',
@@ -339,10 +337,9 @@ export function ProceduresPage() {
                   )}
                   {!procedure.deletedAt && procedure.status !== 'ARCHIVED' && (
                     <Button
-                      className="h-10 w-10 px-0"
                       variant="secondary"
                       title="Arquivar"
-                      icon={<Archive size={16} aria-hidden="true" />}
+                      icon={<Archive size={20} aria-hidden="true" />}
                       onClick={() =>
                         setConfirmAction({
                           title: 'Arquivar procedimento',
@@ -354,10 +351,9 @@ export function ProceduresPage() {
                   )}
                   {procedure.deletedAt ? (
                     <Button
-                      className="h-10 w-10 px-0"
                       variant="secondary"
                       title="Restaurar"
-                      icon={<RotateCcw size={16} aria-hidden="true" />}
+                      icon={<RotateCcw size={20} aria-hidden="true" />}
                       onClick={() =>
                         setConfirmAction({
                           title: 'Restaurar procedimento',
@@ -368,10 +364,9 @@ export function ProceduresPage() {
                     />
                   ) : (
                     <Button
-                      className="h-10 w-10 px-0"
                       variant="danger"
                       title="Excluir"
-                      icon={<Trash2 size={16} aria-hidden="true" />}
+                      icon={<Trash2 size={20} aria-hidden="true" />}
                       onClick={() =>
                         setConfirmAction({
                           title: 'Excluir procedimento',
@@ -638,3 +633,4 @@ function Detail({ label, value }: { label: string; value: string }) {
     </div>
   );
 }
+

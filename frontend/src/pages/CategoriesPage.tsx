@@ -335,11 +335,11 @@ function CategoryCard({
       <p className="mt-3 min-h-10 text-sm leading-5 text-slate-600">{category.description ?? 'Sem descricao.'}</p>
 
       <div className="mt-4 flex flex-wrap gap-2">
-        <Button className="h-10 w-10 px-0" variant="secondary" title="Subir" disabled={isFirst} icon={<ArrowUp size={16} aria-hidden="true" />} onClick={() => onMove('up')} />
-        <Button className="h-10 w-10 px-0" variant="secondary" title="Descer" disabled={isLast} icon={<ArrowDown size={16} aria-hidden="true" />} onClick={() => onMove('down')} />
-        <Button className="h-10 w-10 px-0" variant="secondary" title="Editar" icon={<Edit size={16} aria-hidden="true" />} onClick={onEdit} />
-        <Button className="h-10 w-10 px-0" variant="secondary" title={category.status === 'ACTIVE' ? 'Desativar' : 'Ativar'} icon={<Power size={16} aria-hidden="true" />} onClick={onToggle} />
-        <Button className="h-10 w-10 px-0" variant="danger" title="Excluir" icon={<Trash2 size={16} aria-hidden="true" />} onClick={onDelete} />
+        <Button variant="secondary" title="Subir" disabled={isFirst} icon={<ArrowUp size={20} aria-hidden="true" />} onClick={() => onMove('up')} />
+        <Button variant="secondary" title="Descer" disabled={isLast} icon={<ArrowDown size={20} aria-hidden="true" />} onClick={() => onMove('down')} />
+        <Button variant="secondary" title="Editar" icon={<Edit size={20} aria-hidden="true" />} onClick={onEdit} />
+        <Button variant="secondary" title={category.status === 'ACTIVE' ? 'Desativar' : 'Ativar'} icon={<Power size={20} aria-hidden="true" />} onClick={onToggle} />
+        <Button variant="danger" title="Excluir" icon={<Trash2 size={20} aria-hidden="true" />} onClick={onDelete} />
       </div>
     </article>
   );
@@ -493,3 +493,4 @@ function CategoryFormModal({
     </Modal>
   );
 }
+
