@@ -2,6 +2,10 @@ FROM node:22-bookworm-slim AS deps
 
 WORKDIR /app
 
+RUN apt-get update \
+  && apt-get install -y --no-install-recommends openssl ca-certificates \
+  && rm -rf /var/lib/apt/lists/*
+
 COPY backend/package*.json backend/
 COPY frontend/package*.json frontend/
 
@@ -11,6 +15,10 @@ RUN npm --prefix frontend ci
 FROM node:22-bookworm-slim AS build
 
 WORKDIR /app
+
+RUN apt-get update \
+  && apt-get install -y --no-install-recommends openssl ca-certificates \
+  && rm -rf /var/lib/apt/lists/*
 
 COPY --from=deps /app/backend/node_modules backend/node_modules
 COPY --from=deps /app/frontend/node_modules frontend/node_modules
@@ -25,6 +33,10 @@ FROM node:22-bookworm-slim AS runner
 WORKDIR /app
 
 ENV NODE_ENV=production
+
+RUN apt-get update \
+  && apt-get install -y --no-install-recommends openssl ca-certificates \
+  && rm -rf /var/lib/apt/lists/*
 
 COPY --from=build /app/backend backend
 COPY --from=build /app/frontend/dist frontend/dist
